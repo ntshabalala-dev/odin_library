@@ -8,27 +8,44 @@
     <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-    <button type="button">
+    <button id="addButton" type="button">
         Add New Book
     </button>
 
     <div class="books">
-        <div class="book" hidden>
-            <div class="book__card">
-                <p>author</p>
-                <p>pages: 365</p>
-                <p>year: 2005</p>
+  
+        <table>
+            <thead>
+                <tr>
+                    <th>id</th>
+                    <th>title</th>
+                    <th>author</th>
+                    <th>is read</th>
+                    <th>Delete</th>
+                    <th>Edit</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+
+        <form action="" method="post">
+            <div class="form__author">
+                <label for="author">Author:</label>
+                <input required type="text" name="author_name" id="author" placeholder="Ex. David Fincher">
             </div>
-            <p>book title</p>
-        </div>
-        <div class="book" >
-            <div class="book__card">
-                <p>author</p>
-                <p>pages: 365</p>
-                <p>year: 2005</p>
+
+            <div class="form__title">
+                <label for="title">Title:</label>
+                <input required type="text" name="title_name" id="title" placeholder="Ex. Harry Potter">
             </div>
-            <p>book title</p>
-        </div>
+
+            <div class="form__read">
+                <label for="is_read">Read:</label>
+                <input required type="checkbox" name="is_read" id="read">
+            </div>
+            <button type="submit">Add To Library</button>
+        </form>
     </div>
 </body>
 </html>

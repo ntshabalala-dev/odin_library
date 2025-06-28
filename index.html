@@ -29,23 +29,24 @@
             </tbody>
         </table>
 
-        <form action="" method="post">
-            <div class="form__author">
-                <label for="author">Author:</label>
-                <input required type="text" name="author_name" id="author" placeholder="Ex. David Fincher">
-            </div>
-
-            <div class="form__title">
-                <label for="title">Title:</label>
-                <input required type="text" name="title_name" id="title" placeholder="Ex. Harry Potter">
-            </div>
-
-            <div class="form__read">
-                <label for="is_read">Read:</label>
-                <input required type="checkbox" name="is_read" id="read">
-            </div>
-            <button type="submit">Add To Library</button>
-        </form>
+        <dialog>
+            <form>
+                <div class="form__author">
+                    <label for="author">Author:</label>
+                    <input autofocus type="text" name="author_name" id="author" placeholder="Ex. David Fincher">
+                </div>
+                <div class="form__title">
+                    <label for="title">Title:</label>
+                    <input type="text" name="title_name" id="title" placeholder="Ex. Harry Potter">
+                </div>
+                <div class="form__read">
+                    <label for="is_read">Read:</label>
+                    <input type="checkbox" name="is_read" id="read">
+                </div>
+                <button id="addBook" value="AddBook" type="submit">Add To Library</button>
+                <button id="cancel" value="cancel" formmethod="dialog">Cancel</button>
+            </form>
+        </dialog>
     </div>
 </body>
 </html>

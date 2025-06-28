@@ -51,12 +51,12 @@ function createActionButtons(row) {
 // book2.addBook();
 // console.log(book1.getBooks());
 
-const addButton = document.getElementById('addButton');
-addButton.addEventListener('click', () => {
-    let newBook = new Books('Dazai', 'no longer human');
-    newBook.addBook();
-    console.log(newBook.author);
-});
+// const addButton = document.getElementById('addButton');
+// addButton.addEventListener('click', () => {
+//     let newBook = new Books('Dazai', 'no longer human');
+//     newBook.addBook();
+//     console.log(newBook.author);
+// });
 
 window.onload = function() {
     const book1 = new Books("George Orwell", "1984", true).addBook();
@@ -66,3 +66,29 @@ window.onload = function() {
     showBooks();
 };
 
+
+const dialog = document.querySelector('dialog');
+const addButton = document.getElementById('addButton');
+const cancel = document.getElementById('cancel');
+const addBook = document.getElementById('addBook');
+
+
+addButton.addEventListener('click', function(e) {
+    e.preventDefault();
+    console.log('hello');
+    dialog.showModal();
+});
+
+cancel.addEventListener('click', function(e) {
+    // e.preventDefault();
+    
+    // dialog.close();
+    console.log(dialog.returnValue);
+    
+})
+
+addBook.addEventListener('click', function (e) {
+    e.preventDefault();
+    console.log('book added');
+    
+})

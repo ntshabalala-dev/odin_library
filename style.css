@@ -13,17 +13,13 @@ body {
 
 .books {
     display: inline-flex;
-    /* flex-wrap: wrap; */
-    /* gap: 1rem; */
-    /* padding: 1rem; */
-    /* justify-content: center; */
-    /* border: #333 solid 3px; */
     width: 100%;
 }
 
 header {
-    display: flex;
-    justify-content: space-between;
+    width: 100%;
+    display: grid;
+    grid-template-columns: auto 150px;
 }
 
 .books table {
@@ -41,11 +37,9 @@ header {
 }
 
 .container {
-    max-width: 1200px;
-    /* min-width: 1000px; */
+    width: min(80%, 1200px);
     margin: 0 auto;
-    padding: 1rem;
-    overflow-x: scroll;
+    overflow-x: auto;
 }
 
 th {

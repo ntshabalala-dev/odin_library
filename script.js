@@ -83,7 +83,7 @@ cancel.addEventListener('click', function(e) {
     // e.preventDefault();
     
     // dialog.close();
-    console.log(dialog.returnValue);
+    console.log("dialog.returnValue");
     
 })
 

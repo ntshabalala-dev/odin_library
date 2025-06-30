@@ -1,4 +1,5 @@
 const myLibrary = [];
+const tableBody = document.querySelector('.books tbody');
 
 function Books(author, title, isRead = false) {
     this.id = crypto.randomUUID();
@@ -8,10 +9,17 @@ function Books(author, title, isRead = false) {
 }
 
 
-Books.prototype.addBook = function () {
+Books.prototype.addToLibrary = function (newBook = false) {
     myLibrary.push(this);
-    console.log('new book added');
+    if (newBook) {
+        row = document.createElement('tr');
+        data = Object.values(this);
+        data.forEach(element => {
+            // WIP
+        });
+    }
     
+    console.log('new book added');
 }
 
 Books.prototype.getBooks = function() {
@@ -19,7 +27,6 @@ Books.prototype.getBooks = function() {
 }
 
 function showBooks()  {
-    const tableBody = document.querySelector('.books tbody');
     myLibrary.forEach(book => {
         // Create table row
         const row = tableBody.appendChild(document.createElement('tr'));
@@ -59,10 +66,10 @@ function createActionButtons(row) {
 // });
 
 window.onload = function() {
-    const book1 = new Books("George Orwell", "1984", true).addBook();
-    const book2 = new Books("Harper Lee", "To Kill a Mockingbird").addBook();
-    const book3 = new Books("J.K. Rowling", "Harry Potter and the Sorcerer's Stone", true).addBook();
-    const book4 = new Books("F. Scott Fitzgerald", "The Great Gatsby").addBook();
+    const book1 = new Books("George Orwell", "1984", true).addToLibrary();
+    const book2 = new Books("Harper Lee", "To Kill a Mockingbird").addToLibrary();
+    const book3 = new Books("J.K. Rowling", "Harry Potter and the Sorcerer's Stone", true).addToLibrary();
+    const book4 = new Books("F. Scott Fitzgerald", "The Great Gatsby").addToLibrary();
     showBooks();
 };
 
@@ -80,15 +87,13 @@ addButton.addEventListener('click', function(e) {
 });
 
 cancel.addEventListener('click', function(e) {
-    // e.preventDefault();
-    
-    // dialog.close();
-    console.log("dialog.returnValue");
-    
+    console.log(dialog.returnValue);
 })
 
 addBook.addEventListener('click', function (e) {
     e.preventDefault();
+    const book = new Books("George Orwell", "1984", true);
+    book.addToLibrary();
+    showBooks();
     console.log('book added');
-    
 })

@@ -18,18 +18,19 @@ Books.prototype.addToLibrary = function (newBook = false) {
             // WIP
         });
     }
-    
+
     console.log('new book added');
 }
 
-Books.prototype.getBooks = function() {
+Books.prototype.getBooks = function () {
     return myLibrary;
 }
 
-function showBooks()  {
+function showBooks() {
     myLibrary.forEach(book => {
         // Create table row
         const row = tableBody.appendChild(document.createElement('tr'));
+        row.setAttribute('data-id', book.id);
         // get values from current book object (array)
         let data = Object.values(book);
         data.forEach(value => {
@@ -45,9 +46,11 @@ function showBooks()  {
 
 function createActionButtons(row) {
     const deleteBook = row.appendChild(document.createElement('td'));
-    deleteBook.textContent = 'del';
     const editBook = row.appendChild(document.createElement('td'));
+    deleteBook.textContent = 'del';
     editBook.textContent = 'edit';
+    deleteBook.setAttribute('class', 'action delete');
+    editBook.setAttribute('class', 'action edit');
 }
 
 // let book1 = new Books('Dazai', 'no longer human');
@@ -65,11 +68,37 @@ function createActionButtons(row) {
 //     console.log(newBook.author);
 // });
 
-window.onload = function() {
+window.onload = function () {
     const book1 = new Books("George Orwell", "1984", true).addToLibrary();
     const book2 = new Books("Harper Lee", "To Kill a Mockingbird").addToLibrary();
     const book3 = new Books("J.K. Rowling", "Harry Potter and the Sorcerer's Stone", true).addToLibrary();
     const book4 = new Books("F. Scott Fitzgerald", "The Great Gatsby").addToLibrary();
+
+    const rows = document.querySelector('table tbody');
+    rows.addEventListener('click', function (e) {
+        target = e.target;
+        elementClass = target.classList.value;
+        // console.log(target.classList.value);
+        if (target !== "" && elementClass.includes('action')) {
+            // isolate the second string
+            console.log(target.closest('tr'));
+            rowId = target.closest('tr');
+
+            switch (elementClass.substr(6)) {
+                case 'delete':
+
+                    break;
+                case 'edit':
+
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+    });
+
     showBooks();
 };
 
@@ -80,13 +109,13 @@ const cancel = document.getElementById('cancel');
 const addBook = document.getElementById('addBook');
 
 
-addButton.addEventListener('click', function(e) {
+addButton.addEventListener('click', function (e) {
     e.preventDefault();
     console.log('hello');
     dialog.showModal();
 });
 
-cancel.addEventListener('click', function(e) {
+cancel.addEventListener('click', function (e) {
     console.log(dialog.returnValue);
 })
 

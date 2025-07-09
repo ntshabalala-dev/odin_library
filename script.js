@@ -12,14 +12,19 @@ function Books(author, title, isRead = false) {
 Books.prototype.addToLibrary = function (newBook = false) {
     myLibrary.push(this);
     if (newBook) {
-        row = document.createElement('tr');
-        data = Object.values(this);
+        const row = document.createElement('tr');
+        row.setAttribute('data-id', this.id);
+        const data = Object.values(this);
         data.forEach(element => {
-            // WIP
+            const cell = document.createElement('td');
+            cell.textContent = element;
+            row.appendChild(cell);
         });
+        tableBody.appendChild(row)
+        createActionButtons(row);
+        // console.log('new book added');
     }
 
-    console.log('new book added');
 }
 
 Books.prototype.getBooks = function () {
@@ -35,9 +40,19 @@ function showBooks() {
         let data = Object.values(book);
         data.forEach(value => {
             // Create table cells
+            console.log();
+            
             let cell = row.appendChild(document.createElement('td'));
             // attach book data to cells
-            cell.textContent = value;
+
+            if (typeof value !== 'boolean') {
+                 cell.textContent = value;
+            } else {
+                const input = document.createElement('input');
+                input.type = "checkbox"
+                input.checked = value;
+                cell.appendChild(input);
+            }
         });
 
         createActionButtons(row);
@@ -45,10 +60,14 @@ function showBooks() {
 }
 
 function createActionButtons(row) {
-    const deleteBook = row.appendChild(document.createElement('td'));
-    const editBook = row.appendChild(document.createElement('td'));
+    const deleteBook = document.createElement('td');
+    const editBook = document.createElement('td');
+
+    row.append(deleteBook,editBook);
     deleteBook.textContent = 'del';
     editBook.textContent = 'edit';
+
+    //deleteBook.class = 'action delete';
     deleteBook.setAttribute('class', 'action delete');
     editBook.setAttribute('class', 'action edit');
 }
@@ -84,7 +103,7 @@ window.onload = function () {
             console.log(target.closest('tr'));
             rowId = target.closest('tr');
 
-            switch (elementClass.substr(6)) {
+            switch (elementClass.substr(7)) {
                 case 'delete':
 
                     break;
@@ -102,27 +121,29 @@ window.onload = function () {
     showBooks();
 };
 
-
 const dialog = document.querySelector('dialog');
 const addButton = document.getElementById('addButton');
 const cancel = document.getElementById('cancel');
-const addBook = document.getElementById('addBook');
-
+const modalForm = document.querySelector('.modal__form');
 
 addButton.addEventListener('click', function (e) {
-    e.preventDefault();
-    console.log('hello');
     dialog.showModal();
 });
 
-cancel.addEventListener('click', function (e) {
-    console.log(dialog.returnValue);
-})
+// cancel.addEventListener('click', function (e) {
+//     console.log(dialog.returnValue);
+// })
 
-addBook.addEventListener('click', function (e) {
+modalForm.addEventListener('submit', function (e) {
     e.preventDefault();
+    formData = new FormData(this)
+
+    console.log(this.elements['author']);
+     
+  
+    //const data = Object.fromEntries(formData.entries());
+    console.log(formData.entries());
     const book = new Books("George Orwell", "1984", true);
-    book.addToLibrary();
-    showBooks();
-    console.log('book added');
+    //book.addToLibrary(true);
+    dialog.close();
 })

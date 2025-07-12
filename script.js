@@ -69,8 +69,6 @@ function createActionButtons(row) {
     const editBook = document.createElement('td');
 
     row.append(deleteBook,editBook);
-    deleteBook.textContent = 'del';
-    editBook.textContent = 'edit';
 
     //deleteBook.class = 'action delete';
     deleteBook.setAttribute('class', 'action delete');
@@ -102,7 +100,7 @@ window.onload = function () {
     rows.addEventListener('click', function (e) {
         target = e.target;
         elementClass = target.classList.value;
-        // console.log(target.classList.value);
+        console.log(target.classList.value);
         if (target !== "" && elementClass.includes('action')) {
             // isolate the second string
             console.log(target.closest('tr'));

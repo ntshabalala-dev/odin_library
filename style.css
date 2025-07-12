@@ -119,3 +119,9 @@ dialog button {
     cursor: pointer;
     margin-top: 5px;
 }
+
+.delete::before {
+    content: url('./images/trash.svg');
+    width: 20px;
+    height: 20px;
+}

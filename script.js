@@ -15,16 +15,31 @@ Books.prototype.addToLibrary = function (newBook = false) {
         const row = document.createElement('tr');
         row.setAttribute('data-id', this.id);
         const data = Object.values(this);
-        data.forEach(element => {
+        data.forEach(value => {
             const cell = document.createElement('td');
-            cell.textContent = element;
+            addDataToTable(cell, value);
             row.appendChild(cell);
         });
         tableBody.appendChild(row)
         createActionButtons(row);
-        // console.log('new book added');
     }
+}
 
+function createCheckboxInput (cell, checkboxValue) {
+    const input = document.createElement('input');
+    cell.setAttribute('class', 'action')
+    input.type = "checkbox"
+    input.checked = checkboxValue;
+    return input;
+}
+
+function addDataToTable(cell, value) {
+    if (typeof value !== 'boolean') {
+        cell.textContent = value;
+    } else {
+        const checkbox = createCheckboxInput(cell, value);
+        cell.appendChild(checkbox);                
+    }
 }
 
 Books.prototype.getBooks = function () {
@@ -40,19 +55,9 @@ function showBooks() {
         let data = Object.values(book);
         data.forEach(value => {
             // Create table cells
-            console.log();
-            
-            let cell = row.appendChild(document.createElement('td'));
-            // attach book data to cells
-
-            if (typeof value !== 'boolean') {
-                 cell.textContent = value;
-            } else {
-                const input = document.createElement('input');
-                input.type = "checkbox"
-                input.checked = value;
-                cell.appendChild(input);
-            }
+            let cell = document.createElement('td');
+            addDataToTable(cell, value);
+            row.appendChild(cell)
         });
 
         createActionButtons(row);
@@ -130,20 +135,15 @@ addButton.addEventListener('click', function (e) {
     dialog.showModal();
 });
 
-// cancel.addEventListener('click', function (e) {
-//     console.log(dialog.returnValue);
-// })
-
 modalForm.addEventListener('submit', function (e) {
     e.preventDefault();
     formData = new FormData(this)
-
-    console.log(this.elements['author']);
-     
-  
-    //const data = Object.fromEntries(formData.entries());
-    console.log(formData.entries());
-    const book = new Books("George Orwell", "1984", true);
-    //book.addToLibrary(true);
+    const data = Object.fromEntries(formData.entries());
+    console.log(data);
+    const isRead = data.is_read == 'on' ? true : false;
+    const book = new Books(data.author_name, data.title_name, isRead);
+    book.addToLibrary(true);
+    console.log(book);
+    
     dialog.close();
 })

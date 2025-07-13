@@ -122,6 +122,11 @@ dialog button {
 
 .delete::before {
     content: url('./images/trash.svg');
-    width: 20px;
-    height: 20px;
+    background-color: turquoise;
+    padding: 5px;
+    border-radius: 10%;
+}
+
+.edit::before {
+    content: url('./images/edit.svg');
 }

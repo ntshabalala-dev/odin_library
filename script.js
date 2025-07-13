@@ -28,6 +28,8 @@ Books.prototype.addToLibrary = function (newBook = false) {
 function createCheckboxInput (cell, checkboxValue) {
     const input = document.createElement('input');
     cell.setAttribute('class', 'action')
+    input.setAttribute('class', 'action isRead')
+    input.name ="form__isRead";
     input.type = "checkbox"
     input.checked = checkboxValue;
     return input;
@@ -100,10 +102,10 @@ window.onload = function () {
     rows.addEventListener('click', function (e) {
         target = e.target;
         elementClass = target.classList.value;
-        console.log(target.classList.value);
+        console.log(target);
         if (target !== "" && elementClass.includes('action')) {
             // isolate the second string
-            console.log(target.closest('tr'));
+            console.log(elementClass.substr(7));
             rowId = target.closest('tr');
 
             switch (elementClass.substr(7)) {
@@ -113,7 +115,9 @@ window.onload = function () {
                 case 'edit':
 
                     break;
+                case 'read':
 
+                    break
                 default:
                     break;
             }

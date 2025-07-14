@@ -44,9 +44,12 @@ function addDataToTable(cell, value) {
     }
 }
 
-Books.prototype.getBooks = function () {
+function getBooks() {
     return myLibrary;
 }
+// Books.prototype.getBooks = function () {
+//     return myLibrary;
+// }
 
 function showBooks() {
     myLibrary.forEach(book => {
@@ -104,19 +107,32 @@ window.onload = function () {
         elementClass = target.classList.value;
         console.log(target);
         if (target !== "" && elementClass.includes('action')) {
-            // isolate the second string
-            console.log(elementClass.substr(7));
-            rowId = target.closest('tr');
+            rowId = target.closest('tr').dataset.id;
 
+            const allBooks = getBooks();
+            const bookIndex = allBooks.findIndex((book) => {
+                return book.id == rowId
+            })
+
+            const book = allBooks[bookIndex];
+
+            console.log(bookIndex);
+            
             switch (elementClass.substr(7)) {
                 case 'delete':
-
+                        e.preventDefault();
+                        bookInformation.hidden = false;
+                        bookTitle.textContent = book.title;
+                        bookAuthor.textContent = book.author;
+                        favDialog.showModal();
                     break;
                 case 'edit':
 
                     break;
-                case 'read':
-
+                case 'isRead':
+                        // sets isRead property to true directly on the object
+                        book.isRead = target.checked;
+                        console.log(getBooks());
                     break
                 default:
                     break;
@@ -149,3 +165,27 @@ modalForm.addEventListener('submit', function (e) {
     
     dialog.close();
 })
+
+
+const favDialog = document.getElementById('favDialog');
+const deleteButton = document.getElementById('deleteButton');
+const bookInformation = document.getElementById('bookInformation');
+const bookTitle = document.getElementById('bookTitle');
+const bookAuthor = document.getElementById('bookAuthor');
+
+deleteButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        favDialog.close('nuts');
+});
+
+
+favDialog.addEventListener("close", function () {
+
+    console.log('hello', this.returnValue);
+
+    
+//   outputBox.value =
+//     favDialog.returnValue === "default"
+//       ? "No return value."
+//       : `ReturnValue: ${favDialog.returnValue}.`; // Have to check for "default" rather than empty string
+});

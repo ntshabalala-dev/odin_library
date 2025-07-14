@@ -4,9 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Book Management System</title>
     <script src="./script.js" defer></script>
     <link rel="stylesheet" href="./style.css">
+    <link rel="icon" type="image/x-icon" href="./images/tabIcon.ico">
 </head>
 
 <body>
@@ -35,6 +36,7 @@
                 <tbody>
                 </tbody>
             </table>
+
             <dialog>
                 <form class="modal__form">
                     <div class="form__author">
@@ -51,6 +53,15 @@
                     </div>
                     <button id="addBook" value="AddBook" type="submit">Add To Library</button>
                     <button id="cancel" value="cancel" formmethod="dialog">Cancel</button>
+                </form>
+            </dialog>
+
+            <dialog id="favDialog">
+                <form class="modal__form">
+                    <p>Do you want to delete the following book?</p>
+                    <p id="bookInformation" hidden><span id="bookTitle"></span> by <span id="bookAuthor"></span></p>
+                    <button id="deleteButton" value="delete">Yes</button>
+                    <button id="cancelButton" value="cancel">No</button>
                 </form>
             </dialog>
         </div>

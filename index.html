@@ -37,7 +37,7 @@
                 </tbody>
             </table>
 
-            <dialog>
+            <dialog id="storeDialog">
                 <form class="modal__form">
                     <div class="form__author">
                         <label for="author">Author:</label>
@@ -56,12 +56,12 @@
                 </form>
             </dialog>
 
-            <dialog id="favDialog">
+            <dialog id="deleteDialog">
                 <form class="modal__form">
                     <p>Do you want to delete the following book?</p>
                     <p id="bookInformation" hidden><span id="bookTitle"></span> by <span id="bookAuthor"></span></p>
                     <button id="deleteButton" value="delete">Yes</button>
-                    <button id="cancelButton" value="cancel">No</button>
+                    <button autofocus id="cancelButton" value="cancel">No</button>
                 </form>
             </dialog>
         </div>

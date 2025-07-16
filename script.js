@@ -1,4 +1,4 @@
-const myLibrary = [];
+const myLibrary = JSON.parse(localStorage.getItem('myBooks')) ?? [];
 const tableBody = document.querySelector('.books tbody');
 
 function Books(author, title, isRead = false) {
@@ -25,11 +25,11 @@ Books.prototype.addToLibrary = function (newBook = false) {
     }
 }
 
-function createCheckboxInput (cell, checkboxValue) {
+function createCheckboxInput(cell, checkboxValue) {
     const input = document.createElement('input');
     cell.setAttribute('class', 'action')
     input.setAttribute('class', 'action isRead')
-    input.name ="form__isRead";
+    input.name = "form__isRead";
     input.type = "checkbox"
     input.checked = checkboxValue;
     return input;
@@ -40,7 +40,7 @@ function addDataToTable(cell, value) {
         cell.textContent = value;
     } else {
         const checkbox = createCheckboxInput(cell, value);
-        cell.appendChild(checkbox);                
+        cell.appendChild(checkbox);
     }
 }
 
@@ -73,7 +73,7 @@ function createActionButtons(row) {
     const deleteBook = document.createElement('td');
     const editBook = document.createElement('td');
 
-    row.append(deleteBook,editBook);
+    row.append(deleteBook, editBook);
 
     //deleteBook.class = 'action delete';
     deleteBook.setAttribute('class', 'action delete');
@@ -96,43 +96,51 @@ function createActionButtons(row) {
 // });
 
 window.onload = function () {
-    const book1 = new Books("George Orwell", "1984", true).addToLibrary();
-    const book2 = new Books("Harper Lee", "To Kill a Mockingbird").addToLibrary();
-    const book3 = new Books("J.K. Rowling", "Harry Potter and the Sorcerer's Stone", true).addToLibrary();
-    const book4 = new Books("F. Scott Fitzgerald", "The Great Gatsby").addToLibrary();
+    // Check local storage before creating default books
+    if (localStorage.getItem('myBooks') == null) {
+        const book1 = new Books("George Orwell", "1984", true).addToLibrary();
+        const book2 = new Books("Harper Lee", "To Kill a Mockingbird").addToLibrary();
+        const book3 = new Books("J.K. Rowling", "Harry Potter and the Sorcerer's Stone", true).addToLibrary();
+        const book4 = new Books("F. Scott Fitzgerald", "The Great Gatsby").addToLibrary();
+    }
 
     const rows = document.querySelector('table tbody');
     rows.addEventListener('click', function (e) {
         target = e.target;
         elementClass = target.classList.value;
-        console.log(target);
+        // console.log(target);
         if (target !== "" && elementClass.includes('action')) {
-            rowId = target.closest('tr').dataset.id;
+            const tableRow = target.closest('tr');
+            const rowId = tableRow.dataset.id;
+            const allBooks = JSON.parse(localStorage.getItem('myBooks')) ?? getBooks();
 
-            const allBooks = getBooks();
             const bookIndex = allBooks.findIndex((book) => {
                 return book.id == rowId
             })
 
             const book = allBooks[bookIndex];
 
-            console.log(bookIndex);
-            
+            // console.log(tableRow);
+
             switch (elementClass.substr(7)) {
                 case 'delete':
-                        e.preventDefault();
-                        bookInformation.hidden = false;
-                        bookTitle.textContent = book.title;
-                        bookAuthor.textContent = book.author;
-                        favDialog.showModal();
+                    // e.preventDefault();
+                    bookInformation.hidden = false;
+                    bookTitle.textContent = book.title;
+                    bookAuthor.textContent = book.author;
+
+                    window.deleteDialogData = tableRow;
+                    window.bookIndex = bookIndex;
+
+                    deleteDialog.showModal();
                     break;
                 case 'edit':
 
                     break;
                 case 'isRead':
-                        // sets isRead property to true directly on the object
-                        book.isRead = target.checked;
-                        console.log(getBooks());
+                    // sets isRead property to true directly on the object
+                    book.isRead = target.checked;
+                    console.log(getBooks());
                     break
                 default:
                     break;
@@ -162,30 +170,42 @@ modalForm.addEventListener('submit', function (e) {
     const book = new Books(data.author_name, data.title_name, isRead);
     book.addToLibrary(true);
     console.log(book);
-    
+
     dialog.close();
 })
 
 
-const favDialog = document.getElementById('favDialog');
+const deleteDialog = document.getElementById('deleteDialog');
 const deleteButton = document.getElementById('deleteButton');
 const bookInformation = document.getElementById('bookInformation');
 const bookTitle = document.getElementById('bookTitle');
 const bookAuthor = document.getElementById('bookAuthor');
 
 deleteButton.addEventListener('click', (e) => {
-        e.preventDefault();
-        favDialog.close('nuts');
+    e.preventDefault();
+    // remove child element (selected row) from document
+    const row = window.deleteDialogData;
+    row.remove();
+    // remove book from myLibrary array
+    getBooks().splice(window.bookIndex, 1);
+    localStorage.setItem('myBooks', JSON.stringify(getBooks()));
+
+    console.log(JSON.parse(localStorage.getItem('myBooks')));
+    localStorage.clear();
+
+
+    // add myLibrary to local storage
+    deleteDialog.close('');
 });
 
 
-favDialog.addEventListener("close", function () {
+deleteDialog.addEventListener("close", function () {
 
-    console.log('hello', this.returnValue);
+    // console.log('hello', this.returnValue);
 
-    
-//   outputBox.value =
-//     favDialog.returnValue === "default"
-//       ? "No return value."
-//       : `ReturnValue: ${favDialog.returnValue}.`; // Have to check for "default" rather than empty string
+
+    //   outputBox.value =
+    //     deleteDialog.returnValue === "default"
+    //       ? "No return value."
+    //       : `ReturnValue: ${deleteDialog.returnValue}.`; // Have to check for "default" rather than empty string
 });

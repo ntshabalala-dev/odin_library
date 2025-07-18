@@ -52,7 +52,9 @@ function getBooks() {
 // }
 
 function showBooks() {
-    myLibrary.forEach(book => {
+    // console.log(myLibrary);
+    
+    getBooks().forEach(book => {
         // Create table row
         const row = tableBody.appendChild(document.createElement('tr'));
         row.setAttribute('data-id', book.id);
@@ -112,7 +114,7 @@ window.onload = function () {
         if (target !== "" && elementClass.includes('action')) {
             const tableRow = target.closest('tr');
             const rowId = tableRow.dataset.id;
-            const allBooks = JSON.parse(localStorage.getItem('myBooks')) ?? getBooks();
+            const allBooks = JSON.parse(localStorage.getItem('myBooks')) || getBooks();
 
             const bookIndex = allBooks.findIndex((book) => {
                 return book.id == rowId
@@ -139,8 +141,12 @@ window.onload = function () {
                     break;
                 case 'isRead':
                     // sets isRead property to true directly on the object
+                   
+                    localStorage.clear()
                     book.isRead = target.checked;
-                    console.log(getBooks());
+                
+                    localStorage.setItem('myBooks', JSON.stringify(allBooks));
+
                     break
                 default:
                     break;
@@ -188,13 +194,14 @@ deleteButton.addEventListener('click', (e) => {
     row.remove();
     // remove book from myLibrary array
     getBooks().splice(window.bookIndex, 1);
+    // add myLibrary to local storage
     localStorage.setItem('myBooks', JSON.stringify(getBooks()));
 
-    console.log(JSON.parse(localStorage.getItem('myBooks')));
+    // console.log(JSON.parse(localStorage.getItem('myBooks')));
+    // remove to persist storage
     localStorage.clear();
 
 
-    // add myLibrary to local storage
     deleteDialog.close('');
 });
 

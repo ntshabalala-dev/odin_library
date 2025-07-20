@@ -1,16 +1,15 @@
 const myLibrary = JSON.parse(localStorage.getItem('myBooks')) ?? [];
 const tableBody = document.querySelector('.books tbody');
 
-function Books(author, title, isRead = false) {
+function Books(title, author, isRead = false) {
     this.id = crypto.randomUUID();
-    this.author = author;
     this.title = title;
+    this.author = author;
     this.isRead = isRead;
 }
 
-
 Books.prototype.addToLibrary = function (newBook = false) {
-    myLibrary.push(this);
+    // Add new book to local storage 
     if (newBook) {
         const row = document.createElement('tr');
         row.setAttribute('data-id', this.id);
@@ -22,6 +21,24 @@ Books.prototype.addToLibrary = function (newBook = false) {
         });
         tableBody.appendChild(row)
         createActionButtons(row);
+
+        
+        // NOthing in local storage
+        if (! JSON.parse(localStorage.getItem('myBooks'))) {
+            // push to empty storage or reset system
+            myLibrary.push(this);
+            localStorage.setItem('myBooks', JSON.stringify(getBooks()));
+        } else {
+            //push to existing storage
+            let books = JSON.parse(localStorage.getItem('myBooks'));
+            books.push(this);
+            localStorage.clear();
+            localStorage.setItem('myBooks', JSON.stringify(books));
+            console.log(localStorage.getItem('myBooks'));
+        }
+
+    } else if (! JSON.parse(localStorage.getItem('myBooks'))) {
+        myLibrary.push(this);
     }
 }
 
@@ -47,12 +64,10 @@ function addDataToTable(cell, value) {
 function getBooks() {
     return myLibrary;
 }
-// Books.prototype.getBooks = function () {
-//     return myLibrary;
-// }
+
 
 function showBooks() {
-    // console.log(myLibrary);
+    console.log(myLibrary);
     
     getBooks().forEach(book => {
         // Create table row
@@ -60,6 +75,8 @@ function showBooks() {
         row.setAttribute('data-id', book.id);
         // get values from current book object (array)
         let data = Object.values(book);
+        //console.log(data);
+        
         data.forEach(value => {
             // Create table cells
             let cell = document.createElement('td');
@@ -82,6 +99,13 @@ function createActionButtons(row) {
     editBook.setAttribute('class', 'action edit');
 }
 
+function fromJson(objects) {
+    return objects.map((value) => {
+        return new Books(value.author,value.title, value.isRead);
+    })
+}
+
+
 // let book1 = new Books('Dazai', 'no longer human');
 // let book2 = new Books('Dazai', 'no longer human');
 
@@ -100,10 +124,10 @@ function createActionButtons(row) {
 window.onload = function () {
     // Check local storage before creating default books
     if (localStorage.getItem('myBooks') == null) {
-        const book1 = new Books("George Orwell", "1984", true).addToLibrary();
-        const book2 = new Books("Harper Lee", "To Kill a Mockingbird").addToLibrary();
-        const book3 = new Books("J.K. Rowling", "Harry Potter and the Sorcerer's Stone", true).addToLibrary();
-        const book4 = new Books("F. Scott Fitzgerald", "The Great Gatsby").addToLibrary();
+        const book1 = new Books("1984", "George Orwell", true).addToLibrary();
+        const book2 = new Books("To Kill a Mockingbird", "Harper Lee").addToLibrary();
+        const book3 = new Books("Harry Potter and the Sorcerer's Stone", "J.K. Rowling", true).addToLibrary();
+        const book4 = new Books("The Great Gatsby","F. Scott Fitzgerald").addToLibrary();
     }
 
     const rows = document.querySelector('table tbody');
@@ -121,7 +145,8 @@ window.onload = function () {
             })
 
             const book = allBooks[bookIndex];
-
+            window.dialogData = tableRow;
+            window.bookIndex = bookIndex;
             // console.log(tableRow);
 
             switch (elementClass.substr(7)) {
@@ -130,21 +155,19 @@ window.onload = function () {
                     bookInformation.hidden = false;
                     bookTitle.textContent = book.title;
                     bookAuthor.textContent = book.author;
-
-                    window.deleteDialogData = tableRow;
-                    window.bookIndex = bookIndex;
-
                     deleteDialog.showModal();
                     break;
                 case 'edit':
-
+                    addNewBookBtn.hidden = true;
+                    editBtn.hidden = false;
+                    storeUpdateDialog.showModal();
+                    
                     break;
                 case 'isRead':
                     // sets isRead property to true directly on the object
                    
                     localStorage.clear()
                     book.isRead = target.checked;
-                
                     localStorage.setItem('myBooks', JSON.stringify(allBooks));
 
                     break
@@ -158,26 +181,35 @@ window.onload = function () {
     showBooks();
 };
 
-const dialog = document.querySelector('dialog');
-const addButton = document.getElementById('addButton');
+
+const editBtn = document.getElementById('updateBook');
+const addNewBookBtn = document.getElementById('addBook');
+const storeUpdateDialog = document.getElementById('storeUpdateDialog');
+const addBookToLibraryBtn = document.getElementById('addButton');
 const cancel = document.getElementById('cancel');
 const modalForm = document.querySelector('.modal__form');
 
-addButton.addEventListener('click', function (e) {
-    dialog.showModal();
+addBookToLibraryBtn.addEventListener('click', function (e) {
+    addNewBookBtn.hidden = false;
+    editBtn.hidden = true;
+    storeUpdateDialog.showModal();
 });
 
 modalForm.addEventListener('submit', function (e) {
+    //console.log(e.submitter)
     e.preventDefault();
-    formData = new FormData(this)
-    const data = Object.fromEntries(formData.entries());
-    console.log(data);
-    const isRead = data.is_read == 'on' ? true : false;
-    const book = new Books(data.author_name, data.title_name, isRead);
-    book.addToLibrary(true);
-    console.log(book);
+    
+    if(e.submitter.value !== 'cancel' ) {
+        formData = new FormData(this)
+        const data = Object.fromEntries(formData.entries());
+        console.log(data);
+        const isRead = data.is_read == 'on' ? true : false;
+        const book = new Books(data.author_name, data.title_name, isRead);
+        book.addToLibrary(true);
+        console.log(book);
+    }
 
-    dialog.close();
+    storeUpdateDialog.close();
 })
 
 
@@ -190,17 +222,15 @@ const bookAuthor = document.getElementById('bookAuthor');
 deleteButton.addEventListener('click', (e) => {
     e.preventDefault();
     // remove child element (selected row) from document
-    const row = window.deleteDialogData;
+    const row = window.dialogData;
     row.remove();
     // remove book from myLibrary array
     getBooks().splice(window.bookIndex, 1);
     // add myLibrary to local storage
+    if (getBooks().length === 0) {
+        alert('reset system?');
+    }
     localStorage.setItem('myBooks', JSON.stringify(getBooks()));
-
-    // console.log(JSON.parse(localStorage.getItem('myBooks')));
-    // remove to persist storage
-    localStorage.clear();
-
 
     deleteDialog.close('');
 });

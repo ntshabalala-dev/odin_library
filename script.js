@@ -160,6 +160,10 @@ window.onload = function () {
                 case 'edit':
                     addNewBookBtn.hidden = true;
                     editBtn.hidden = false;
+
+                    document.getElementById('author').value = book.author
+                    document.getElementById('title').value = book.title;
+                    document.getElementById('read').checked = book.isRead;
                     storeUpdateDialog.showModal();
                     
                     break;
@@ -190,24 +194,61 @@ const cancel = document.getElementById('cancel');
 const modalForm = document.querySelector('.modal__form');
 
 addBookToLibraryBtn.addEventListener('click', function (e) {
+    document.querySelectorAll(".modal__form input").forEach(element => {
+        if (element.type == 'checkbox') {
+            element.checked = false;
+        } else {
+            element.value = '';
+        }
+    });
     addNewBookBtn.hidden = false;
     editBtn.hidden = true;
     storeUpdateDialog.showModal();
 });
 
 modalForm.addEventListener('submit', function (e) {
-    //console.log(e.submitter)
+    console.log(e.submitter.value);
     e.preventDefault();
-    
-    if(e.submitter.value !== 'cancel' ) {
+    const submittedButton = e.submitter.value;
+    let data;
+    let isRead;
+    let book;
+
+    if (submittedButton !== 'cancel') {
         formData = new FormData(this)
-        const data = Object.fromEntries(formData.entries());
-        console.log(data);
-        const isRead = data.is_read == 'on' ? true : false;
-        const book = new Books(data.author_name, data.title_name, isRead);
-        book.addToLibrary(true);
-        console.log(book);
+        data = Object.fromEntries(formData.entries());
+        data.is_read = data.is_read == 'on' ? true : false;
     }
+    
+    switch (submittedButton) {
+        case 'addBook':
+            book = new Books(data.author_name, data.title_name, data.is_read);
+            book.addToLibrary(true);
+            break;
+        case 'editBook':
+            const books = JSON.parse(localStorage.getItem('myBooks'));
+            book = books[window.bookIndex];
+            book.author = data.author_name;
+            book.title = data.title_name;
+            book.isRead = data.is_read;
+            localStorage.setItem('myBooks', JSON.stringify(books))
+            window.location.reload();
+            
+            break;
+    
+        default:
+            break;
+    }
+    
+    // if(e.submitter.value !== 'cancel' ) {
+    //     formData = new FormData(this)
+    //     const data = Object.fromEntries(formData.entries());
+    //     console.log(data);
+    //     const isRead = data.is_read == 'on' ? true : false;
+    //     const book = new Books(data.author_name, data.title_name, isRead);
+    //     book.addToLibrary(true);
+    //     console.log(book);
+    // }
 
     storeUpdateDialog.close();
 })

@@ -39,7 +39,7 @@ header {
 
 .container {
     width: min(80%, 1200px);
-    margin: 0 auto;
+    margin: 20px auto;
     overflow-x: auto;
 }
 
@@ -122,11 +122,19 @@ dialog button {
 
 .delete::before {
     content: url('./images/trash.svg');
-    background-color: turquoise;
     padding: 5px;
     border-radius: 10%;
 }
 
 .edit::before {
     content: url('./images/edit.svg');
+}
+
+#addButton {
+    background-color: rgb(91, 192, 222);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 10px;
 }

@@ -1,15 +1,24 @@
-const myLibrary = JSON.parse(localStorage.getItem('myBooks')) ?? [];
+const myLibrary = (v = JSON.parse(localStorage.getItem('myBooks'))) ? fromJson(v) : [];
 const tableBody = document.querySelector('.books tbody');
+const editBtn = document.getElementById('updateBook');
+const addNewBookBtn = document.getElementById('addBook');
+const storeUpdateDialog = document.getElementById('storeUpdateDialog');
+const addBookToLibraryBtn = document.getElementById('addButton');
+const cancel = document.getElementById('cancel');
+const modalForm = document.querySelector('.modal__form');
 
 function Books(title, author, isRead = false) {
     this.id = crypto.randomUUID();
     this.title = title;
     this.author = author;
     this.isRead = isRead;
+
+    let i = 1;
+    console.log(++i);
+    
 }
 
 Books.prototype.addToLibrary = function (newBook = false) {
-    // Add new book to local storage 
     if (newBook) {
         const row = document.createElement('tr');
         row.setAttribute('data-id', this.id);
@@ -22,19 +31,22 @@ Books.prototype.addToLibrary = function (newBook = false) {
         tableBody.appendChild(row)
         createActionButtons(row);
 
-        
-        // NOthing in local storage
         if (! JSON.parse(localStorage.getItem('myBooks'))) {
             // push to empty storage or reset system
-            myLibrary.push(this);
-            localStorage.setItem('myBooks', JSON.stringify(getBooks()));
+            getBooks().push(this);
+            localStorage.setItem('myBooks', JSON.stringify(myLibrary));
         } else {
-            //push to existing storage
-            let books = JSON.parse(localStorage.getItem('myBooks'));
+            //push to existing storage. returns an array of book objects
+            let books = getBooks();
+
+            console.log(books);
             books.push(this);
-            localStorage.clear();
+        
+            
+         
             localStorage.setItem('myBooks', JSON.stringify(books));
-            console.log(localStorage.getItem('myBooks'));
+            console.log(getBooks());
+
         }
 
     } else if (! JSON.parse(localStorage.getItem('myBooks'))) {
@@ -62,28 +74,27 @@ function addDataToTable(cell, value) {
 }
 
 function getBooks() {
+    //console.log(fromJson(myLibrary));
     return myLibrary;
 }
 
+function setBooks(books) {
+    localStorage.setItem('myBooks', JSON.stringify(books));
+}
 
 function showBooks() {
-    console.log(myLibrary);
-    
+
     getBooks().forEach(book => {
         // Create table row
         const row = tableBody.appendChild(document.createElement('tr'));
         row.setAttribute('data-id', book.id);
-        // get values from current book object (array)
-        let data = Object.values(book);
-        //console.log(data);
-        
-        data.forEach(value => {
+        // iterate through values from current book object (array)
+        Object.values(book).forEach(value => {
             // Create table cells
             let cell = document.createElement('td');
             addDataToTable(cell, value);
             row.appendChild(cell)
         });
-
         createActionButtons(row);
     });
 }
@@ -94,7 +105,6 @@ function createActionButtons(row) {
 
     row.append(deleteBook, editBook);
 
-    //deleteBook.class = 'action delete';
     deleteBook.setAttribute('class', 'action delete');
     editBook.setAttribute('class', 'action edit');
 }
@@ -104,22 +114,6 @@ function fromJson(objects) {
         return new Books(value.author,value.title, value.isRead);
     })
 }
-
-
-// let book1 = new Books('Dazai', 'no longer human');
-// let book2 = new Books('Dazai', 'no longer human');
-
-
-// book1.addBook();
-// book2.addBook();
-// console.log(book1.getBooks());
-
-// const addButton = document.getElementById('addButton');
-// addButton.addEventListener('click', () => {
-//     let newBook = new Books('Dazai', 'no longer human');
-//     newBook.addBook();
-//     console.log(newBook.author);
-// });
 
 window.onload = function () {
     // Check local storage before creating default books
@@ -134,64 +128,47 @@ window.onload = function () {
     rows.addEventListener('click', function (e) {
         target = e.target;
         elementClass = target.classList.value;
-        // console.log(target);
         if (target !== "" && elementClass.includes('action')) {
             const tableRow = target.closest('tr');
-            const rowId = tableRow.dataset.id;
-            const allBooks = JSON.parse(localStorage.getItem('myBooks')) || getBooks();
+            window.allBooks = getBooks();
+            const allBooks = window.allBooks;
 
             const bookIndex = allBooks.findIndex((book) => {
-                return book.id == rowId
+                return book.id == tableRow.dataset.id
             })
 
             const book = allBooks[bookIndex];
             window.dialogData = tableRow;
             window.bookIndex = bookIndex;
-            // console.log(tableRow);
 
             switch (elementClass.substr(7)) {
                 case 'delete':
-                    // e.preventDefault();
-                    bookInformation.hidden = false;
-                    bookTitle.textContent = book.title;
-                    bookAuthor.textContent = book.author;
+                    document.getElementById('bookInformation').hidden = false;
+                    document.getElementById('bookTitle').textContent = book.title;
+                    document.getElementById('bookAuthor').textContent = book.author;
                     deleteDialog.showModal();
                     break;
                 case 'edit':
                     addNewBookBtn.hidden = true;
                     editBtn.hidden = false;
-
                     document.getElementById('author').value = book.author
                     document.getElementById('title').value = book.title;
                     document.getElementById('read').checked = book.isRead;
                     storeUpdateDialog.showModal();
-                    
                     break;
                 case 'isRead':
                     // sets isRead property to true directly on the object
-                   
-                    localStorage.clear()
                     book.isRead = target.checked;
-                    localStorage.setItem('myBooks', JSON.stringify(allBooks));
-
+                    //localStorage.setItem('myBooks', JSON.stringify(allBooks));
+                    setBooks(allBooks);
                     break
                 default:
                     break;
             }
         }
-
     });
-
-    showBooks();
+     showBooks();
 };
-
-
-const editBtn = document.getElementById('updateBook');
-const addNewBookBtn = document.getElementById('addBook');
-const storeUpdateDialog = document.getElementById('storeUpdateDialog');
-const addBookToLibraryBtn = document.getElementById('addButton');
-const cancel = document.getElementById('cancel');
-const modalForm = document.querySelector('.modal__form');
 
 addBookToLibraryBtn.addEventListener('click', function (e) {
     document.querySelectorAll(".modal__form input").forEach(element => {
@@ -207,11 +184,9 @@ addBookToLibraryBtn.addEventListener('click', function (e) {
 });
 
 modalForm.addEventListener('submit', function (e) {
-    console.log(e.submitter.value);
     e.preventDefault();
     const submittedButton = e.submitter.value;
     let data;
-    let isRead;
     let book;
 
     if (submittedButton !== 'cancel') {
@@ -226,39 +201,19 @@ modalForm.addEventListener('submit', function (e) {
             book.addToLibrary(true);
             break;
         case 'editBook':
-            const books = JSON.parse(localStorage.getItem('myBooks'));
+            const books = window.allBooks;
             book = books[window.bookIndex];
             book.author = data.author_name;
             book.title = data.title_name;
             book.isRead = data.is_read;
             localStorage.setItem('myBooks', JSON.stringify(books))
             window.location.reload();
-            
-            break;
-    
-        default:
             break;
     }
-    
-    // if(e.submitter.value !== 'cancel' ) {
-    //     formData = new FormData(this)
-    //     const data = Object.fromEntries(formData.entries());
-    //     console.log(data);
-    //     const isRead = data.is_read == 'on' ? true : false;
-    //     const book = new Books(data.author_name, data.title_name, isRead);
-    //     book.addToLibrary(true);
-    //     console.log(book);
-    // }
-
     storeUpdateDialog.close();
 })
 
-
-const deleteDialog = document.getElementById('deleteDialog');
 const deleteButton = document.getElementById('deleteButton');
-const bookInformation = document.getElementById('bookInformation');
-const bookTitle = document.getElementById('bookTitle');
-const bookAuthor = document.getElementById('bookAuthor');
 
 deleteButton.addEventListener('click', (e) => {
     e.preventDefault();
@@ -266,24 +221,22 @@ deleteButton.addEventListener('click', (e) => {
     const row = window.dialogData;
     row.remove();
     // remove book from myLibrary array
-    getBooks().splice(window.bookIndex, 1);
+    const allBooks = window.allBooks;
+    console.log(allBooks);
+    allBooks.splice(window.bookIndex, 1);
     // add myLibrary to local storage
-    if (getBooks().length === 0) {
-        alert('reset system?');
+    localStorage.setItem('myBooks', JSON.stringify(allBooks));
+
+    if (allBooks.length === 0) {
+        if (window.confirm("reset the system?") && tableBody.querySelectorAll('tr').length == 0) {
+            localStorage.clear();
+            window.location.reload();
+        }
     }
-    localStorage.setItem('myBooks', JSON.stringify(getBooks()));
 
-    deleteDialog.close('');
+    document.getElementById('deleteDialog').close('');
 });
 
-
-deleteDialog.addEventListener("close", function () {
-
-    // console.log('hello', this.returnValue);
-
-
-    //   outputBox.value =
-    //     deleteDialog.returnValue === "default"
-    //       ? "No return value."
-    //       : `ReturnValue: ${deleteDialog.returnValue}.`; // Have to check for "default" rather than empty string
-});
+function resetSystem(params) {
+    
+}

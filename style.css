@@ -69,7 +69,8 @@ form>div:not(.form__read) {
 }
 
 .form__read input {
-    transform: scale(1.1) translate(0, 2px);
+    transform: scale(1.1) translate(0, 1px);
+    outline: none;
     /* transform: scale(1.1); */
 
     /* scale the checkbox to 1.5 times its original size */
@@ -77,19 +78,19 @@ form>div:not(.form__read) {
     /* optional, to adjust spacing */
 }
 
-/* form input[type='checkbox'] {
-    text-align: center;
-} */
-
 .action {
     text-align: center;
 }
 
 dialog div [type="text"] {
     width: 100%;
-    padding: 0.1rem;
-    outline: 1px solid black;
-    border-radius: 2px;
+    /* padding: 0.1rem; */
+    padding-top: 0.1rem;
+    padding-left: 0.1rem;
+    outline: none;
+
+    /* border-radius: 5px; */
+    /* border: none; */
 }
 
 ::backdrop {
@@ -137,4 +138,10 @@ dialog button {
     padding: 10px 20px;
     cursor: pointer;
     border-radius: 10px;
+}
+
+
+tr>td:first-child {
+    text-align: center;
+    color: rgb(40, 43, 43);
 }

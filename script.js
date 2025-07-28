@@ -7,23 +7,25 @@ const addBookToLibraryBtn = document.getElementById('addButton');
 const cancel = document.getElementById('cancel');
 const modalForm = document.querySelector('.modal__form');
 
-function Books(title, author, isRead = false) {
+function Books(title, author, isRead = false, isbn = '') {
     this.id = crypto.randomUUID();
+    this.isbn = isbn == '' ? 'N/A': isbn; 
     this.title = title;
     this.author = author;
     this.isRead = isRead;
-
-    let i = 1;
-    console.log(++i);
-    
 }
 
 Books.prototype.addToLibrary = function (newBook = false) {
     if (newBook) {
         const row = document.createElement('tr');
         row.setAttribute('data-id', this.id);
-        const data = Object.values(this);
+        // Create copy of book object and remove id from copy 
+        // to prevent id population on the table
+        const copy = {...this};
+        delete copy.id;
+        const data = Object.values(copy);
         data.forEach(value => {
+            
             const cell = document.createElement('td');
             addDataToTable(cell, value);
             row.appendChild(cell);
@@ -34,19 +36,12 @@ Books.prototype.addToLibrary = function (newBook = false) {
         if (! JSON.parse(localStorage.getItem('myBooks'))) {
             // push to empty storage or reset system
             getBooks().push(this);
-            localStorage.setItem('myBooks', JSON.stringify(myLibrary));
+            localStorage.setItem('myBooks', JSON.stringify(getBooks()));
         } else {
             //push to existing storage. returns an array of book objects
             let books = getBooks();
-
-            console.log(books);
             books.push(this);
-        
-            
-         
             localStorage.setItem('myBooks', JSON.stringify(books));
-            console.log(getBooks());
-
         }
 
     } else if (! JSON.parse(localStorage.getItem('myBooks'))) {
@@ -74,7 +69,6 @@ function addDataToTable(cell, value) {
 }
 
 function getBooks() {
-    //console.log(fromJson(myLibrary));
     return myLibrary;
 }
 
@@ -88,8 +82,12 @@ function showBooks() {
         // Create table row
         const row = tableBody.appendChild(document.createElement('tr'));
         row.setAttribute('data-id', book.id);
+        const copy = {...book};
+        delete copy.id;
+        //const data = Object.values(copy);
+
         // iterate through values from current book object (array)
-        Object.values(book).forEach(value => {
+        Object.values(copy).forEach(value => {
             // Create table cells
             let cell = document.createElement('td');
             addDataToTable(cell, value);
@@ -111,18 +109,24 @@ function createActionButtons(row) {
 
 function fromJson(objects) {
     return objects.map((value) => {
-        return new Books(value.author,value.title, value.isRead);
+        console.log(value);
+        const book = new Books(value.title,value.author, value.isRead, value.isbn);
+        book.id = value.id
+        return book;
     })
 }
 
 window.onload = function () {
+    
     // Check local storage before creating default books
-    if (localStorage.getItem('myBooks') == null) {
+    if (! localStorage.getItem('myBooks')) {
         const book1 = new Books("1984", "George Orwell", true).addToLibrary();
         const book2 = new Books("To Kill a Mockingbird", "Harper Lee").addToLibrary();
-        const book3 = new Books("Harry Potter and the Sorcerer's Stone", "J.K. Rowling", true).addToLibrary();
+        const book3 = new Books("Harry Potter and the Sorcerer's Stone", "J.K. Rowling", true, '978-0-306-40615-7').addToLibrary();
         const book4 = new Books("The Great Gatsby","F. Scott Fitzgerald").addToLibrary();
     }
+
+    resetSystem();
 
     const rows = document.querySelector('table tbody');
     rows.addEventListener('click', function (e) {
@@ -154,13 +158,18 @@ window.onload = function () {
                     document.getElementById('author').value = book.author
                     document.getElementById('title').value = book.title;
                     document.getElementById('read').checked = book.isRead;
+                    document.getElementById('isbn').value = book.isbn == 'N/A' ? '' : book.isbn;
                     storeUpdateDialog.showModal();
                     break;
                 case 'isRead':
                     // sets isRead property to true directly on the object
                     book.isRead = target.checked;
                     //localStorage.setItem('myBooks', JSON.stringify(allBooks));
+                    console.log(allBooks);
+                    
                     setBooks(allBooks);
+
+                    console.log(getBooks())
                     break
                 default:
                     break;
@@ -194,7 +203,7 @@ modalForm.addEventListener('submit', function (e) {
         data = Object.fromEntries(formData.entries());
         data.is_read = data.is_read == 'on' ? true : false;
     }
-    
+        
     switch (submittedButton) {
         case 'addBook':
             book = new Books(data.author_name, data.title_name, data.is_read);
@@ -203,9 +212,12 @@ modalForm.addEventListener('submit', function (e) {
         case 'editBook':
             const books = window.allBooks;
             book = books[window.bookIndex];
+
             book.author = data.author_name;
             book.title = data.title_name;
             book.isRead = data.is_read;
+            book.isbn = data.isbn_number;
+
             localStorage.setItem('myBooks', JSON.stringify(books))
             window.location.reload();
             break;
@@ -222,21 +234,21 @@ deleteButton.addEventListener('click', (e) => {
     row.remove();
     // remove book from myLibrary array
     const allBooks = window.allBooks;
-    console.log(allBooks);
     allBooks.splice(window.bookIndex, 1);
     // add myLibrary to local storage
     localStorage.setItem('myBooks', JSON.stringify(allBooks));
 
-    if (allBooks.length === 0) {
-        if (window.confirm("reset the system?") && tableBody.querySelectorAll('tr').length == 0) {
-            localStorage.clear();
-            window.location.reload();
-        }
-    }
+    resetSystem();
 
     document.getElementById('deleteDialog').close('');
 });
 
-function resetSystem(params) {
-    
+function resetSystem() {
+    if (getBooks().length <= 0 && tableBody.querySelectorAll('tr').length == 0) 
+    {
+        if (window.confirm("reset the system?")) {
+            localStorage.clear();
+            window.location.reload();
+        }
+    }
 }

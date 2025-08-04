@@ -24,17 +24,24 @@ header {
 }
 
 .books table {
+    table-layout: fixed;
     border-collapse: collapse;
     border-spacing: 15px;
     min-width: 100%;
     color: black;
-    /* white-space: nowrap; */
 }
 
 .books table td {
-    /* text-align: center; */
     border: 1px solid black;
     padding-block: 6px;
+    /* overflow: hidden; */
+    overflow: hidden;
+    /* hides overflowing content */
+    white-space: nowrap;
+    /* prevents text wrapping to a new line */
+    text-overflow: ellipsis;
+    /* optionally shows "..." for overflow */
+    width: min-content;
 }
 
 .container {
@@ -71,11 +78,6 @@ form>div:not(.form__read) {
 .form__read input {
     transform: scale(1.1) translate(0, 1px);
     outline: none;
-    /* transform: scale(1.1); */
-
-    /* scale the checkbox to 1.5 times its original size */
-    /* margin: 5px; */
-    /* optional, to adjust spacing */
 }
 
 .action {
@@ -84,18 +86,13 @@ form>div:not(.form__read) {
 
 dialog div [type="text"] {
     width: 100%;
-    /* padding: 0.1rem; */
     padding-top: 0.1rem;
     padding-left: 0.1rem;
     outline: none;
-
-    /* border-radius: 5px; */
-    /* border: none; */
 }
 
 ::backdrop {
     background-color: rgba(0, 0, 0, 0.75);
-    /* semi-transparent black */
     backdrop-filter: blur(50px);
     opacity: 0.75;
 }
@@ -144,4 +141,17 @@ dialog button {
 tr>td:first-child {
     text-align: center;
     color: rgb(40, 43, 43);
+}
+
+.action.delete,
+.action.edit {
+    width: 60px;
+}
+
+.action.read {
+    width: 85px;
+}
+
+thead>tr> :nth-last-child(-n+3) {
+    text-align: center;
 }

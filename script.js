@@ -6,6 +6,7 @@ const storeUpdateDialog = document.getElementById('storeUpdateDialog');
 const addBookToLibraryBtn = document.getElementById('addButton');
 const cancel = document.getElementById('cancel');
 const modalForm = document.querySelector('.modal__form');
+const deleteButton = document.getElementById('deleteButton');
 
 function Books(title, author, isRead = false, isbn = '') {
     this.id = crypto.randomUUID();
@@ -15,6 +16,7 @@ function Books(title, author, isRead = false, isbn = '') {
     this.isRead = isRead;
 }
 
+// Functions
 Books.prototype.addToLibrary = function (newBook = false) {
     if (newBook) {
         const row = document.createElement('tr');
@@ -25,7 +27,6 @@ Books.prototype.addToLibrary = function (newBook = false) {
         delete copy.id;
         const data = Object.values(copy);
         data.forEach(value => {
-            
             const cell = document.createElement('td');
             addDataToTable(cell, value);
             row.appendChild(cell);
@@ -51,7 +52,7 @@ Books.prototype.addToLibrary = function (newBook = false) {
 
 function createCheckboxInput(cell, checkboxValue) {
     const input = document.createElement('input');
-    cell.setAttribute('class', 'action')
+    cell.setAttribute('class', 'action read')
     input.setAttribute('class', 'action isRead')
     input.name = "form__isRead";
     input.type = "checkbox"
@@ -77,7 +78,6 @@ function setBooks(books) {
 }
 
 function showBooks() {
-
     getBooks().forEach(book => {
         // Create table row
         const row = tableBody.appendChild(document.createElement('tr'));
@@ -109,15 +109,13 @@ function createActionButtons(row) {
 
 function fromJson(objects) {
     return objects.map((value) => {
-        console.log(value);
         const book = new Books(value.title,value.author, value.isRead, value.isbn);
         book.id = value.id
         return book;
     })
 }
 
-window.onload = function () {
-    
+function createDefaultBooks() {
     // Check local storage before creating default books
     if (! localStorage.getItem('myBooks')) {
         const book1 = new Books("1984", "George Orwell", true).addToLibrary();
@@ -125,9 +123,21 @@ window.onload = function () {
         const book3 = new Books("Harry Potter and the Sorcerer's Stone", "J.K. Rowling", true, '978-0-306-40615-7').addToLibrary();
         const book4 = new Books("The Great Gatsby","F. Scott Fitzgerald").addToLibrary();
     }
+}
 
+function resetSystem() {
+    if (getBooks().length <= 0 && tableBody.querySelectorAll('tr').length == 0) 
+    {
+        if (window.confirm("reset the system?")) {
+            localStorage.clear();
+            window.location.reload();
+        }
+    }
+}
+
+window.onload = function () {
+    createDefaultBooks();
     resetSystem();
-
     const rows = document.querySelector('table tbody');
     rows.addEventListener('click', function (e) {
         target = e.target;
@@ -163,22 +173,19 @@ window.onload = function () {
                     break;
                 case 'isRead':
                     // sets isRead property to true directly on the object
-                    book.isRead = target.checked;
-                    //localStorage.setItem('myBooks', JSON.stringify(allBooks));
-                    console.log(allBooks);
-                    
+                    book.isRead = target.checked;        
                     setBooks(allBooks);
-
-                    console.log(getBooks())
                     break
                 default:
                     break;
             }
         }
     });
-     showBooks();
+    showBooks();
 };
 
+
+// Event Listeners
 addBookToLibraryBtn.addEventListener('click', function (e) {
     document.querySelectorAll(".modal__form input").forEach(element => {
         if (element.type == 'checkbox') {
@@ -212,7 +219,6 @@ modalForm.addEventListener('submit', function (e) {
         case 'editBook':
             const books = window.allBooks;
             book = books[window.bookIndex];
-
             book.author = data.author_name;
             book.title = data.title_name;
             book.isRead = data.is_read;
@@ -225,8 +231,6 @@ modalForm.addEventListener('submit', function (e) {
     storeUpdateDialog.close();
 })
 
-const deleteButton = document.getElementById('deleteButton');
-
 deleteButton.addEventListener('click', (e) => {
     e.preventDefault();
     // remove child element (selected row) from document
@@ -237,18 +241,6 @@ deleteButton.addEventListener('click', (e) => {
     allBooks.splice(window.bookIndex, 1);
     // add myLibrary to local storage
     localStorage.setItem('myBooks', JSON.stringify(allBooks));
-
     resetSystem();
-
     document.getElementById('deleteDialog').close('');
 });
-
-function resetSystem() {
-    if (getBooks().length <= 0 && tableBody.querySelectorAll('tr').length == 0) 
-    {
-        if (window.confirm("reset the system?")) {
-            localStorage.clear();
-            window.location.reload();
-        }
-    }
-}

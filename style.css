@@ -27,21 +27,17 @@ header {
     table-layout: fixed;
     border-collapse: collapse;
     border-spacing: 15px;
-    min-width: 100%;
+    width: 100%;
     color: black;
 }
 
 .books table td {
     border: 1px solid black;
     padding-block: 6px;
-    /* overflow: hidden; */
     overflow: hidden;
-    /* hides overflowing content */
     white-space: nowrap;
     /* prevents text wrapping to a new line */
     text-overflow: ellipsis;
-    /* optionally shows "..." for overflow */
-    width: min-content;
 }
 
 .container {
@@ -154,4 +150,8 @@ tr>td:first-child {
 
 thead>tr> :nth-last-child(-n+3) {
     text-align: center;
+}
+
+tbody>tr>td:first-child {
+    padding-inline: 1rem;
 }

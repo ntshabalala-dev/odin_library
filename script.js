@@ -63,6 +63,7 @@ function createCheckboxInput(cell, checkboxValue) {
 function addDataToTable(cell, value) {
     if (typeof value !== 'boolean') {
         cell.textContent = value;
+        cell.setAttribute('title', value)
     } else {
         const checkbox = createCheckboxInput(cell, value);
         cell.appendChild(checkbox);
@@ -213,7 +214,7 @@ modalForm.addEventListener('submit', function (e) {
         
     switch (submittedButton) {
         case 'addBook':
-            book = new Books(data.author_name, data.title_name, data.is_read);
+            book = new Books(data.author_name, data.title_name, data.is_read, data.isbn_number);
             book.addToLibrary(true);
             break;
         case 'editBook':

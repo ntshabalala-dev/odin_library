@@ -36,7 +36,6 @@ header {
     padding-block: 6px;
     overflow: hidden;
     white-space: nowrap;
-    /* prevents text wrapping to a new line */
     text-overflow: ellipsis;
 }
 

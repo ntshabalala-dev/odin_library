@@ -23,6 +23,7 @@ class Book extends Books {
     }
 
     addToLibrary(newBook = false) {
+
         if (newBook) {
             const allBooks = BookCatalog.getAllBooks(); // []
             const helper = createElementsHelper();
@@ -44,23 +45,7 @@ class Book extends Books {
 
             allBooks.push(this);
             BookCatalog.setBooks(allBooks)
-            localStorage.setItem('myBooks', JSON.stringify(allBooks));
-
-
-            if (!JSON.parse(localStorage.getItem('myBooks'))) {
-                // push to empty storage or reset system
-
-                //allBooks.push(this);
-                //localStorage.setItem('myBooks', JSON.stringify(allBooks));
-                BookCatalog.setBooks(allBooks)
-            } else {
-                //push to existing storage. returns an array of book objects
-                const books = getBooks();
-                //localStorage.setItem('myBooks', JSON.stringify(books));
-                BookCatalog.setBooks(books)
-            }
         } else {
-            console.log(this);
             const bookCollection = BookCatalog.getAllBooks();
 
             bookCollection.push(this)
@@ -79,8 +64,6 @@ class BookCatalog {
     }
 
     static setBooks(book) {
-        console.log(book, 'WTF');
-
         localStorage.setItem('myBooks', JSON.stringify(book));
     }
 
@@ -142,7 +125,7 @@ function BookController(params) {
     function createDefaultBooks() {
         // Check local storage before creating default books
         //console.log(BookCatalog.getAllBooks());
-        console.log(!BookCatalog.getAllBooks().length);
+        //console.log(!BookCatalog.getAllBooks().length);
 
 
         if (!BookCatalog.getAllBooks().length) {
@@ -207,16 +190,14 @@ function screenController() {
     const addNewBookBtn = document.getElementById('addBook');
     const storeUpdateDialog = document.getElementById('storeUpdateDialog');
     const addBookToLibraryBtn = document.getElementById('addButton');
-    const modalForm = document.querySelector('.modal__form');
+    const modalForms = document.querySelectorAll('.modal__form');
     const deleteButton = document.getElementById('deleteButton');
-
 
     rows.addEventListener('click', function (e) {
         target = e.target;
         elementClass = target.classList.value;
         if (target !== "" && elementClass.includes('action')) {
             const tableRow = target.closest('tr');
-            //window.allBooks = getBooks();
             const allBooks = BookCatalog.getAllBooks();
 
             const bookIndex = allBooks.findIndex((book) => {
@@ -224,14 +205,17 @@ function screenController() {
             })
 
             const book = allBooks[bookIndex];
-            window.dialogData = tableRow;
-            window.bookIndex = bookIndex;
+            modalForms[0].addEventListener('submit', (e) => formSubmit(e, bookIndex));
 
             switch (elementClass.substr(7)) {
                 case 'delete':
                     document.getElementById('bookInformation').hidden = false;
                     document.getElementById('bookTitle').textContent = book.title;
                     document.getElementById('bookAuthor').textContent = book.author;
+                    modalForms[1].addEventListener('submit', (e) => deleteBook(e, {
+                        tableRow: tableRow,
+                        bookIndex: bookIndex
+                    }));
                     deleteDialog.showModal();
                     break;
                 case 'edit':
@@ -239,7 +223,7 @@ function screenController() {
                     editBtn.hidden = false;
                     document.getElementById('author').value = book.author
                     document.getElementById('title').value = book.title;
-                    document.getElementById('read').checked = book.isRead;
+                    document.getElementById('is_read').checked = book.isRead;
                     document.getElementById('isbn').value = book.isbn == 'N/A' ? '' : book.isbn;
                     storeUpdateDialog.showModal();
                     break;
@@ -254,8 +238,6 @@ function screenController() {
         }
     });
 
-    bookController.showBooks();
-
     // Event Listeners
     addBookToLibraryBtn.addEventListener('click', function (e) {
         document.querySelectorAll(".modal__form input").forEach(element => {
@@ -267,57 +249,66 @@ function screenController() {
         });
         addNewBookBtn.hidden = false;
         editBtn.hidden = true;
+
+        modalForms[0].addEventListener('submit', (e) => formSubmit(e))
         storeUpdateDialog.showModal();
     });
 
-    modalForm.addEventListener('submit', function (e) {
+    formSubmit = (e, bookIndex = '') => {
+
         e.preventDefault();
         const submittedButton = e.submitter.value;
         let data;
         let book;
 
         if (submittedButton !== 'cancel') {
-            formData = new FormData(this)
+            const formElement = e.currentTarget;
+            formData = new FormData(formElement)
             data = Object.fromEntries(formData.entries());
             data.is_read = data.is_read == 'on' ? true : false;
+
+            switch (submittedButton) {
+                case 'addBook':
+                    book = new Book(data.author_name, data.title_name, data.is_read, data.isbn_number);
+                    book.addToLibrary(true);
+                    break;
+                case 'editBook':
+                    const books = BookCatalog.getAllBooks();
+                    book = books[bookIndex];
+                    book.author = data.author_name;
+                    book.title = data.title_name;
+                    book.isRead = data.is_read;
+                    book.isbn = data.isbn_number;
+                    BookCatalog.setBooks(books);
+                    window.location.reload();
+                    break;
+            }
         }
 
-        switch (submittedButton) {
-            case 'addBook':
-                book = new Book(data.author_name, data.title_name, data.is_read, data.isbn_number);
-                book.addToLibrary(true);
-                break;
-            case 'editBook':
-                const books = BookCatalog.getAllBooks();
-                book = books[window.bookIndex];
-                book.author = data.author_name;
-                book.title = data.title_name;
-                book.isRead = data.is_read;
-                book.isbn = data.isbn_number;
-
-                //localStorage.setItem('myBooks', JSON.stringify(books))
-                BookCatalog.setBooks(books);
-                window.location.reload();
-                break;
-        }
         storeUpdateDialog.close();
-    })
+    }
 
-    deleteButton.addEventListener('click', (e) => {
+    deleteBook = (e, data) => {
         e.preventDefault();
-        // remove child element (selected row) from document
-        const row = window.dialogData;
-        row.remove();
-        // remove book from myLibrary array
-        //const allBooks = window.allBooks;
-        const allBooks = BookCatalog.getAllBooks();
-        allBooks.splice(window.bookIndex, 1);
-        // add myLibrary to local storage
-        BookCatalog.setBooks(allBooks);
-        //localStorage.setItem('myBooks', JSON.stringify(allBooks));
-        resetSystem();
+
+        const submittedButtonValue = e.submitter.value;
+        if (submittedButtonValue == 'delete') {
+            // remove child element (selected row) from document
+            const row = data.tableRow;
+            row.remove();
+            // remove book from myLibrary array
+            const allBooks = BookCatalog.getAllBooks();
+            allBooks.splice(data.bookIndex, 1);
+            // add myLibrary to local storage
+            BookCatalog.setBooks(allBooks);
+            //localStorage.setItem('myBooks', JSON.stringify(allBooks));
+            bookController.resetSystem();
+        }
         document.getElementById('deleteDialog').close('');
-    })
+    }
+
+    bookController.showBooks();
+
 }
 
 screenController();

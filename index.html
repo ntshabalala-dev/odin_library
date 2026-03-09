@@ -11,14 +11,15 @@
 </head>
 
 <body>
+    <header>
+        <h2>Book Management System</h1>
+        <button id="addButton" type="button">
+            Add New Book
+        </button>
+    </header>
 
     <div class="container">
-        <header>
-            <h2>Book Management System</h1>
-            <button id="addButton" type="button">
-                Add New Book
-            </button>
-        </header>
+        
 
         <div class="books">
           
@@ -59,12 +60,12 @@
                     </div>
                     <div class="form__read">
                         <label for="is_read">Read:</label>
-                        <input type="checkbox" name="is_read" id="read">
+                        <input type="checkbox" name="is_read" id="is_read">
                     </div>
                    
                     <button id="addBook" value="addBook" type="submit">Add To Library</button>
                     <button id="updateBook" value="editBook" type="submit" hidden>Update</button>
-                    <button id="cancel" value="cancel" formmethod="dialog">Cancel</button>
+                    <button id="cancel" value="cancel" formnovalidate>Cancel</button>
                 </form>
             </dialog>
 
@@ -72,8 +73,8 @@
                 <form class="modal__form">
                     <p>Do you want to delete the following book?</p>
                     <p id="bookInformation" hidden><span id="bookTitle"></span> by <span id="bookAuthor"></span></p>
-                    <button id="deleteButton" value="delete">Yes</button>
-                    <button autofocus id="cancelButton" value="cancel">No</button>
+                    <button autofocus id="deleteButton" value="delete">Yes</button>
+                    <button id="cancelButton" value="cancel">No</button>
                 </form>
             </dialog>
         </div>

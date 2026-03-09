@@ -1,8 +1,3 @@
-// const myLibrary = (v = JSON.parse(localStorage.getItem('myBooks'))) ? fromJson(v) : [];
-
-//const cancel = document.getElementById('cancel');
-
-
 class Books {
     constructor(title, author, isRead = false, isbn = '') {
         this.id = crypto.randomUUID();
@@ -25,7 +20,7 @@ class Book extends Books {
     addToLibrary(newBook = false) {
 
         if (newBook) {
-            const allBooks = BookCatalog.getAllBooks(); // []
+            const allBooks = BookCatalog.getAllBooks();
             const helper = createElementsHelper();
             const row = document.createElement('tr');
             row.setAttribute('data-id', this.id);
@@ -42,15 +37,11 @@ class Book extends Books {
             // table body
             document.querySelector('.books tbody').appendChild(row)
             helper.createActionButtons(row);
-
             allBooks.push(this);
             BookCatalog.setBooks(allBooks)
         } else {
             const bookCollection = BookCatalog.getAllBooks();
-
             bookCollection.push(this)
-
-
             BookCatalog.setBooks(bookCollection);
         }
     }
@@ -68,10 +59,6 @@ class BookCatalog {
     }
 
     static #mapJson(obj) {
-        //console.log('nama');
-
-        //console.log(localStorage.getItem('myBooks'));
-
         if (obj instanceof Object && Object.keys(obj)) {
             return obj.map((value) => {
                 const book = new Book(value.title, value.author, value.isRead, value.isbn);
@@ -123,11 +110,6 @@ function BookController(params) {
     const tableBody = document.querySelector('.books tbody');
 
     function createDefaultBooks() {
-        // Check local storage before creating default books
-        //console.log(BookCatalog.getAllBooks());
-        //console.log(!BookCatalog.getAllBooks().length);
-
-
         if (!BookCatalog.getAllBooks().length) {
             const booksToAdd = [
                 { title: "1984", author: "George Orwell", isRead: true },
@@ -137,7 +119,6 @@ function BookController(params) {
             ];
 
             booksToAdd.forEach(book => {
-                //console.log(new Book(book.title, book.author, book.isRead ?? false, book.isbn ?? ''));
                 new Book(book.title, book.author, book.isRead ?? false, book.isbn ?? '').addToLibrary();
             });
         }
@@ -191,7 +172,6 @@ function screenController() {
     const storeUpdateDialog = document.getElementById('storeUpdateDialog');
     const addBookToLibraryBtn = document.getElementById('addButton');
     const modalForms = document.querySelectorAll('.modal__form');
-    const deleteButton = document.getElementById('deleteButton');
 
     rows.addEventListener('click', function (e) {
         target = e.target;
@@ -301,7 +281,6 @@ function screenController() {
             allBooks.splice(data.bookIndex, 1);
             // add myLibrary to local storage
             BookCatalog.setBooks(allBooks);
-            //localStorage.setItem('myBooks', JSON.stringify(allBooks));
             bookController.resetSystem();
         }
         document.getElementById('deleteDialog').close('');
@@ -312,10 +291,3 @@ function screenController() {
 }
 
 screenController();
-
-
-// const bookController = new BookController()
-// bookController.createDefaultBooks();
-// console.log(BookCatalog.getAllBooks());
-
-

@@ -10,7 +10,7 @@ const deleteButton = document.getElementById('deleteButton');
 
 function Books(title, author, isRead = false, isbn = '') {
     this.id = crypto.randomUUID();
-    this.isbn = isbn == '' ? 'N/A': isbn; 
+    this.isbn = isbn == '' ? 'N/A' : isbn;
     this.title = title;
     this.author = author;
     this.isRead = isRead;
@@ -23,7 +23,7 @@ Books.prototype.addToLibrary = function (newBook = false) {
         row.setAttribute('data-id', this.id);
         // Create copy of book object and remove id from copy 
         // to prevent id population on the table
-        const copy = {...this};
+        const copy = { ...this };
         delete copy.id;
         const data = Object.values(copy);
         data.forEach(value => {
@@ -34,7 +34,7 @@ Books.prototype.addToLibrary = function (newBook = false) {
         tableBody.appendChild(row)
         createActionButtons(row);
 
-        if (! JSON.parse(localStorage.getItem('myBooks'))) {
+        if (!JSON.parse(localStorage.getItem('myBooks'))) {
             // push to empty storage or reset system
             getBooks().push(this);
             localStorage.setItem('myBooks', JSON.stringify(getBooks()));
@@ -45,7 +45,7 @@ Books.prototype.addToLibrary = function (newBook = false) {
             localStorage.setItem('myBooks', JSON.stringify(books));
         }
 
-    } else if (! JSON.parse(localStorage.getItem('myBooks'))) {
+    } else if (!JSON.parse(localStorage.getItem('myBooks'))) {
         myLibrary.push(this);
     }
 }
@@ -83,7 +83,7 @@ function showBooks() {
         // Create table row
         const row = tableBody.appendChild(document.createElement('tr'));
         row.setAttribute('data-id', book.id);
-        const copy = {...book};
+        const copy = { ...book };
         delete copy.id;
         //const data = Object.values(copy);
 
@@ -110,7 +110,7 @@ function createActionButtons(row) {
 
 function fromJson(objects) {
     return objects.map((value) => {
-        const book = new Books(value.title,value.author, value.isRead, value.isbn);
+        const book = new Books(value.title, value.author, value.isRead, value.isbn);
         book.id = value.id
         return book;
     })
@@ -118,17 +118,16 @@ function fromJson(objects) {
 
 function createDefaultBooks() {
     // Check local storage before creating default books
-    if (! localStorage.getItem('myBooks')) {
+    if (!localStorage.getItem('myBooks')) {
         const book1 = new Books("1984", "George Orwell", true).addToLibrary();
         const book2 = new Books("To Kill a Mockingbird", "Harper Lee").addToLibrary();
         const book3 = new Books("Harry Potter and the Sorcerer's Stone", "J.K. Rowling", true, '978-0-306-40615-7').addToLibrary();
-        const book4 = new Books("The Great Gatsby","F. Scott Fitzgerald").addToLibrary();
+        const book4 = new Books("The Great Gatsby", "F. Scott Fitzgerald").addToLibrary();
     }
 }
 
 function resetSystem() {
-    if (getBooks().length <= 0 && tableBody.querySelectorAll('tr').length == 0) 
-    {
+    if (getBooks().length <= 0 && tableBody.querySelectorAll('tr').length == 0) {
         if (window.confirm("reset the system?")) {
             localStorage.clear();
             window.location.reload();
@@ -174,7 +173,7 @@ window.onload = function () {
                     break;
                 case 'isRead':
                     // sets isRead property to true directly on the object
-                    book.isRead = target.checked;        
+                    book.isRead = target.checked;
                     setBooks(allBooks);
                     break
                 default:
@@ -202,6 +201,11 @@ addBookToLibraryBtn.addEventListener('click', function (e) {
 
 modalForm.addEventListener('submit', function (e) {
     e.preventDefault();
+
+    if (!validateForm()) {
+        return;               // stop — don't add/edit the book yet
+    }
+
     const submittedButton = e.submitter.value;
     let data;
     let book;
@@ -211,7 +215,7 @@ modalForm.addEventListener('submit', function (e) {
         data = Object.fromEntries(formData.entries());
         data.is_read = data.is_read == 'on' ? true : false;
     }
-        
+
     switch (submittedButton) {
         case 'addBook':
             book = new Books(data.author_name, data.title_name, data.is_read, data.isbn_number);
@@ -245,3 +249,23 @@ deleteButton.addEventListener('click', (e) => {
     resetSystem();
     document.getElementById('deleteDialog').close('');
 });
+
+function validateForm() {
+    const titleInput = document.querySelector('#storeUpdateDialog #title');
+    const authorInput = document.querySelector('#storeUpdateDialog #author');
+
+    if (titleInput.validity.valueMissing) {
+        titleInput.setCustomValidity("The book title must be filled!");
+        titleInput.reportValidity();   // ← shows the bubble now
+        return false;                  // ← signals "invalid"
+    }
+
+    if (authorInput.validity.valueMissing) {
+        authorInput.setCustomValidity("The author name must be filled!");
+        authorInput.reportValidity();   // ← shows the bubble now
+        return false;                  // ← signals "invalid"
+    }
+
+    return true;
+}
+
